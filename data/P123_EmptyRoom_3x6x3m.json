@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "P123-SPACE-0.1.0",
+  "modelType": "parametric_indoor_space",
+  "name": "P123 Empty Room 3x6x3m",
+  "unit": "meter",
+  "coordinateSystem": {
+    "handedness": "right",
+    "upAxis": "Y",
+    "horizontalAxes": ["X", "Z"],
+    "origin": "floor_corner_A",
+    "description": "X is room width, Y is height, and Z is room length."
+  },
+  "calibration": {
+    "method": "manual_dimensions",
+    "referenceObject": null,
+    "scaleConfirmed": true
+  },
+  "room": {
+    "shape": "rectangular_prism",
+    "dimensions": { "width": 3.0, "length": 6.0, "height": 3.0 },
+    "floorPolygon": [
+      { "x": 0.0, "z": 0.0 },
+      { "x": 3.0, "z": 0.0 },
+      { "x": 3.0, "z": 6.0 },
+      { "x": 0.0, "z": 6.0 }
+    ],
+    "floorElevation": 0.0,
+    "ceilingElevation": 3.0
+  },
+  "walls": [
+    { "id": "W01", "label": "Wall A", "start": { "x": 0.0, "y": 0.0, "z": 0.0 }, "end": { "x": 3.0, "y": 0.0, "z": 0.0 }, "height": 3.0, "thickness": 0.1 },
+    { "id": "W02", "label": "Wall B", "start": { "x": 3.0, "y": 0.0, "z": 0.0 }, "end": { "x": 3.0, "y": 0.0, "z": 6.0 }, "height": 3.0, "thickness": 0.1 },
+    { "id": "W03", "label": "Wall C", "start": { "x": 3.0, "y": 0.0, "z": 6.0 }, "end": { "x": 0.0, "y": 0.0, "z": 6.0 }, "height": 3.0, "thickness": 0.1 },
+    { "id": "W04", "label": "Wall D", "start": { "x": 0.0, "y": 0.0, "z": 6.0 }, "end": { "x": 0.0, "y": 0.0, "z": 0.0 }, "height": 3.0, "thickness": 0.1 }
+  ],
+  "openings": [],
+  "obstacles": [],
+  "measurements": [
+    { "id": "M01", "type": "room_width", "value": 3.0, "unit": "meter" },
+    { "id": "M02", "type": "room_length", "value": 6.0, "unit": "meter" },
+    { "id": "M03", "type": "room_height", "value": 3.0, "unit": "meter" }
+  ],
+  "quality": {
+    "status": "reference_model",
+    "geometryConfidence": 1.0,
+    "notes": "Manually defined empty rectangular room for P123 viewer testing."
+  }
+}

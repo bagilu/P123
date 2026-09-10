@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="P123 空間模型 V0.1：讀取 P123 JSON、檢視尺寸並匯出 GLB。">
+  <title>P123 空間模型｜V0.1 Viewer</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/exporters/GLTFExporter.js"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand-block">
+        <div class="mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <h1>P123 空間模型</h1>
+          <p>V0.1 JSON Viewer</p>
+        </div>
+      </div>
+      <div class="file-actions">
+        <input id="fileInput" type="file" accept="application/json,.json" hidden>
+        <button id="openButton" class="button button-primary" type="button">開啟 JSON</button>
+        <button id="exportButton" class="button" type="button">匯出 GLB</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <div class="viewer-card">
+        <div id="viewport" class="viewport" aria-label="可旋轉的三維空間模型">
+          <div class="viewport-topline">
+            <div class="status-chip"><span class="status-dot"></span><span id="modelStatus">基準模型</span></div>
+            <div class="view-switch" role="group" aria-label="切換觀看角度">
+              <button class="view-button active" data-view="perspective" type="button">3D</button>
+              <button class="view-button" data-view="top" type="button">俯視</button>
+              <button class="view-button" data-view="front" type="button">正面</button>
+              <button class="view-button" data-view="side" type="button">側面</button>
+            </div>
+          </div>
+
+          <div class="viewer-help">拖曳旋轉 · 滾輪或雙指縮放 · 右鍵或雙指平移</div>
+
+          <div id="loading" class="loading-panel">
+            <div class="spinner" aria-hidden="true"></div>
+            <p>正在載入 3D 引擎…</p>
+          </div>
+        </div>
+
+        <div class="viewer-toolbar" aria-label="模型顯示設定">
+          <label class="switch-row">
+            <input id="dimensionToggle" type="checkbox" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span>尺寸標示</span>
+          </label>
+          <label class="switch-row">
+            <input id="gridToggle" type="checkbox" checked>
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span>地面格線</span>
+          </label>
+          <label class="switch-row">
+            <input id="ceilingToggle" type="checkbox">
+            <span class="switch-ui" aria-hidden="true"></span>
+            <span>顯示天花板</span>
+          </label>
+          <button id="resetButton" class="text-button" type="button">回到基準模型</button>
+        </div>
+      </div>
+
+      <aside class="inspector">
+        <div class="inspector-heading">
+          <span class="eyebrow">CURRENT SPACE</span>
+          <h2 id="spaceName">P123 Empty Room 3x6x3m</h2>
+          <p id="schemaVersion">P123-SPACE-0.1.0</p>
+        </div>
+
+        <div class="metric-grid">
+          <article class="metric">
+            <span>寬度</span>
+            <strong id="widthValue">3.00</strong>
+            <small>m</small>
+          </article>
+          <article class="metric">
+            <span>長度</span>
+            <strong id="lengthValue">6.00</strong>
+            <small>m</small>
+          </article>
+          <article class="metric">
+            <span>高度</span>
+            <strong id="heightValue">3.00</strong>
+            <small>m</small>
+          </article>
+          <article class="metric">
+            <span>地板面積</span>
+            <strong id="areaValue">18.00</strong>
+            <small>m²</small>
+          </article>
+        </div>
+
+        <div class="section-block">
+          <div class="section-title"><h3>模型內容</h3><span id="unitBadge" class="unit-badge">meter</span></div>
+          <dl class="detail-list">
+            <div><dt>牆面</dt><dd id="wallCount">4</dd></div>
+            <div><dt>門窗開口</dt><dd id="openingCount">0</dd></div>
+            <div><dt>大型障礙物</dt><dd id="obstacleCount">0</dd></div>
+            <div><dt>座標原點</dt><dd id="originValue">floor_corner_A</dd></div>
+          </dl>
+        </div>
+
+        <div class="section-block note-block">
+          <h3>資料狀態</h3>
+          <p id="qualityNote">人工定義的空房間，供 P123 Viewer 測試。</p>
+        </div>
+
+        <button id="jsonButton" class="button button-wide" type="button">查看目前 JSON</button>
+      </aside>
+    </section>
+  </main>
+
+  <dialog id="jsonDialog" class="json-dialog">
+    <div class="dialog-head">
+      <div><span class="eyebrow">SOURCE DATA</span><h2>目前 JSON</h2></div>
+      <button id="closeDialog" class="icon-button" type="button" aria-label="關閉">×</button>
+    </div>
+    <pre id="jsonContent"></pre>
+    <div class="dialog-actions">
+      <button id="downloadJsonButton" class="button" type="button">下載 JSON</button>
+      <button id="closeDialogBottom" class="button button-primary" type="button">完成</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
