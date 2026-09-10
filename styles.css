@@ -53,6 +53,25 @@ button { -webkit-tap-highlight-color: transparent; }
 .brand-block h1 { margin: 0; font-size: 1.08rem; letter-spacing: 0.04em; }
 .brand-block p { margin: 3px 0 0; color: var(--muted); font: 600 0.72rem/1.2 ui-monospace, monospace; letter-spacing: 0.13em; }
 
+.site-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 1.15rem 1rem 1.4rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.site-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.site-footer a:hover,
+.site-footer a:focus-visible { text-decoration: underline; }
+
 .mark {
   width: 39px;
   height: 39px;
