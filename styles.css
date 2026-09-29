@@ -26,7 +26,7 @@ body {
   font-family: Inter, "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
 }
 
-button, input { font: inherit; }
+button, input, select { font: inherit; }
 button { -webkit-tap-highlight-color: transparent; }
 
 .app-shell {
@@ -87,7 +87,23 @@ button { -webkit-tap-highlight-color: transparent; }
 .mark span:nth-child(2) { width: 1px; height: 17px; }
 .mark span:nth-child(3) { width: 5px; height: 5px; border-radius: 50%; }
 
-.file-actions { display: flex; gap: 10px; }
+.file-actions { display: flex; align-items: flex-end; gap: 10px; }
+.sample-picker { display: grid; gap: 4px; }
+.sample-picker span { color: var(--muted); font-size: .67rem; font-weight: 700; letter-spacing: .08em; }
+.sample-picker select {
+  min-height: 42px;
+  max-width: 250px;
+  padding: 0 34px 0 12px;
+  border: 1px solid #2b4253;
+  border-radius: 8px;
+  background: #132330;
+  color: var(--text);
+  cursor: pointer;
+  font-size: .82rem;
+  font-weight: 700;
+}
+.sample-picker select:hover,
+.sample-picker select:focus-visible { border-color: var(--accent); outline: none; }
 .button {
   min-height: 42px;
   padding: 0 17px;
@@ -218,11 +234,13 @@ button { -webkit-tap-highlight-color: transparent; }
 }
 
 @media (max-width: 620px) {
-  .topbar { align-items: flex-start; padding: 12px 14px; }
+  .topbar { align-items: flex-start; flex-wrap: wrap; padding: 12px 14px; }
   .brand-block h1 { font-size: .95rem; }
   .brand-block p { font-size: .62rem; }
   .mark { width: 34px; height: 34px; }
-  .file-actions { gap: 6px; }
+  .file-actions { width: 100%; display: grid; grid-template-columns: 1fr auto auto; gap: 6px; }
+  .sample-picker { min-width: 0; }
+  .sample-picker select { width: 100%; max-width: none; }
   .button { min-height: 40px; padding: 0 12px; font-size: .8rem; }
   .workspace { padding: 10px; gap: 10px; }
   .viewer-card { grid-template-rows: minmax(430px, 65vh) auto; }

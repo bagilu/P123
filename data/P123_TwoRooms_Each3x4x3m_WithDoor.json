@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "P123-SPACE-0.1.0",
+  "modelType": "parametric_indoor_space",
+  "name": "P123 Two Rooms — Each 3x4x3m with Connecting Door",
+  "unit": "meter",
+  "coordinateSystem": {
+    "handedness": "right",
+    "upAxis": "Y",
+    "horizontalAxes": ["X", "Z"],
+    "origin": "floor_corner_A",
+    "description": "X is total width, Y is height, and Z is total length. A partition at X=3 separates the two rooms."
+  },
+  "calibration": {
+    "method": "manual_dimensions",
+    "referenceObject": null,
+    "scaleConfirmed": true
+  },
+  "room": {
+    "shape": "compound_rectangular_space",
+    "dimensions": {
+      "width": 6.0,
+      "length": 4.0,
+      "height": 3.0
+    },
+    "floorPolygon": [
+      { "x": 0.0, "z": 0.0 },
+      { "x": 6.0, "z": 0.0 },
+      { "x": 6.0, "z": 4.0 },
+      { "x": 0.0, "z": 4.0 }
+    ],
+    "floorElevation": 0.0,
+    "ceilingElevation": 3.0
+  },
+  "spaces": [
+    {
+      "id": "R01",
+      "label": "Room 1",
+      "dimensions": { "width": 3.0, "length": 4.0, "height": 3.0 },
+      "floorPolygon": [
+        { "x": 0.0, "z": 0.0 },
+        { "x": 3.0, "z": 0.0 },
+        { "x": 3.0, "z": 4.0 },
+        { "x": 0.0, "z": 4.0 }
+      ]
+    },
+    {
+      "id": "R02",
+      "label": "Room 2",
+      "dimensions": { "width": 3.0, "length": 4.0, "height": 3.0 },
+      "floorPolygon": [
+        { "x": 3.0, "z": 0.0 },
+        { "x": 6.0, "z": 0.0 },
+        { "x": 6.0, "z": 4.0 },
+        { "x": 3.0, "z": 4.0 }
+      ]
+    }
+  ],
+  "walls": [
+    {
+      "id": "W01",
+      "label": "Outer Wall South",
+      "start": { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "end": { "x": 6.0, "y": 0.0, "z": 0.0 },
+      "height": 3.0,
+      "thickness": 0.1
+    },
+    {
+      "id": "W02",
+      "label": "Outer Wall East",
+      "start": { "x": 6.0, "y": 0.0, "z": 0.0 },
+      "end": { "x": 6.0, "y": 0.0, "z": 4.0 },
+      "height": 3.0,
+      "thickness": 0.1
+    },
+    {
+      "id": "W03",
+      "label": "Outer Wall North",
+      "start": { "x": 6.0, "y": 0.0, "z": 4.0 },
+      "end": { "x": 0.0, "y": 0.0, "z": 4.0 },
+      "height": 3.0,
+      "thickness": 0.1
+    },
+    {
+      "id": "W04",
+      "label": "Outer Wall West",
+      "start": { "x": 0.0, "y": 0.0, "z": 4.0 },
+      "end": { "x": 0.0, "y": 0.0, "z": 0.0 },
+      "height": 3.0,
+      "thickness": 0.1
+    },
+    {
+      "id": "W05A",
+      "label": "Partition Wall — South Segment",
+      "start": { "x": 3.0, "y": 0.0, "z": 0.0 },
+      "end": { "x": 3.0, "y": 0.0, "z": 1.55 },
+      "height": 3.0,
+      "thickness": 0.1
+    },
+    {
+      "id": "W05B",
+      "label": "Partition Wall — North Segment",
+      "start": { "x": 3.0, "y": 0.0, "z": 2.45 },
+      "end": { "x": 3.0, "y": 0.0, "z": 4.0 },
+      "height": 3.0,
+      "thickness": 0.1
+    }
+  ],
+  "openings": [
+    {
+      "id": "D01",
+      "type": "door",
+      "label": "Connecting Door",
+      "hostWallId": "W05",
+      "connectsSpaces": ["R01", "R02"],
+      "position": { "x": 3.0, "y": 0.0, "z": 2.0 },
+      "width": 0.9,
+      "height": 2.1,
+      "sillHeight": 0.0,
+      "swing": "not_specified",
+      "viewerRepresentation": "gap_between_W05A_and_W05B"
+    }
+  ],
+  "obstacles": [],
+  "measurements": [
+    { "id": "M01", "type": "total_width", "value": 6.0, "unit": "meter" },
+    { "id": "M02", "type": "total_length", "value": 4.0, "unit": "meter" },
+    { "id": "M03", "type": "room_height", "value": 3.0, "unit": "meter" },
+    { "id": "M04", "type": "room_1_width", "value": 3.0, "unit": "meter" },
+    { "id": "M05", "type": "room_2_width", "value": 3.0, "unit": "meter" },
+    { "id": "M06", "type": "connecting_door_width", "value": 0.9, "unit": "meter" },
+    { "id": "M07", "type": "connecting_door_height", "value": 2.1, "unit": "meter" }
+  ],
+  "quality": {
+    "status": "reference_model",
+    "geometryConfidence": 1.0,
+    "notes": "Manually defined two-room reference model. The current P123 viewer shows the connecting door as a 0.9 m gap in the partition wall; opening metadata preserves a nominal 2.1 m door height for future viewer versions."
+  }
+}

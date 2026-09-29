@@ -52,6 +52,7 @@ const toast = document.querySelector("#toast");
 
 let currentModel = structuredClone(referenceModel);
 let currentFilename = "P123_EmptyRoom_3x6x3m.json";
+let currentSampleKey = "empty";
 let modelGroup;
 let dimensionGroup;
 let ceilingMesh;
@@ -377,6 +378,44 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove("visible"), 2500);
 }
 
+const sampleModels = {
+  empty: {
+    label: "3×6×3 公尺空房間",
+    filename: "P123_EmptyRoom_3x6x3m.json",
+    path: "data/P123_EmptyRoom_3x6x3m.json",
+    fallback: referenceModel
+  },
+  obstacle: {
+    label: "含大型桌面的引導式房間",
+    filename: "P123_GuidedRoom_WithObstacle.json",
+    path: "data/P123_GuidedRoom_WithObstacle.json",
+    fallback: window.P123_SAMPLE_MODELS?.obstacle
+  },
+  twoRooms: {
+    label: "兩間各3×4×3公尺的雙房間",
+    filename: "P123_TwoRooms_Each3x4x3m_WithDoor.json",
+    path: "data/P123_TwoRooms_Each3x4x3m_WithDoor.json",
+    fallback: window.P123_SAMPLE_MODELS?.twoRooms
+  }
+};
+
+async function loadSample(key, announce = true) {
+  const sample = sampleModels[key];
+  if (!sample) throw new Error("找不到指定的範例檔案。");
+  let data = sample.fallback ? structuredClone(sample.fallback) : null;
+  try {
+    const response = await fetch(sample.path, { cache: "no-store" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    data = await response.json();
+  } catch (error) {
+    if (!data) throw new Error("範例檔案載入失敗。");
+  }
+  currentSampleKey = key;
+  document.querySelector("#sampleSelect").value = key;
+  buildModel(data, sample.filename);
+  if (announce) showToast(`已載入：${sample.label}`);
+}
+
 function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
@@ -393,6 +432,7 @@ fileInput.addEventListener("change", async event => {
   try {
     const data = JSON.parse(await file.text());
     buildModel(data, file.name);
+    document.querySelector("#sampleSelect").value = "";
     showToast(`已開啟 ${file.name}`);
   } catch (error) {
     showToast(`無法開啟：${error.message}`);
@@ -401,9 +441,20 @@ fileInput.addEventListener("change", async event => {
   }
 });
 
-document.querySelector("#resetButton").addEventListener("click", () => {
-  buildModel(referenceModel, "P123_EmptyRoom_3x6x3m.json");
-  showToast("已回到 3×6×3 公尺基準模型");
+document.querySelector("#sampleSelect").addEventListener("change", async event => {
+  try {
+    await loadSample(event.target.value);
+  } catch (error) {
+    showToast(`無法載入：${error.message}`);
+  }
+});
+
+document.querySelector("#resetButton").addEventListener("click", async () => {
+  try {
+    await loadSample(currentSampleKey);
+  } catch (error) {
+    showToast(`無法載入：${error.message}`);
+  }
 });
 
 document.querySelectorAll(".view-button").forEach(button => {
