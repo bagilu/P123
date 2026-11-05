@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "P123-SPACE-0.2.0",
+  "modelType": "parametric_room_builder",
+  "name": "P123 參數式房間 3x4x3m（含門與窗）",
+  "unit": "meter",
+  "inputUnit": "centimeter",
+  "webVersion": "V0.3.0",
+  "sdsVersion": "SBI-P-SDS v3.6",
+  "coordinateSystem": {
+    "handedness": "right",
+    "upAxis": "Y",
+    "horizontalAxes": ["X", "Z"],
+    "origin": "floor_corner_A"
+  },
+  "parametric": {
+    "template": "rectangle",
+    "roomId": "R001",
+    "nextParameterNumber": 12,
+    "nextOpeningNumber": 3
+  },
+  "room": {
+    "id": "R001",
+    "shape": "rectangular_prism",
+    "dimensions": { "width": 3, "length": 4, "height": 3 },
+    "parameterIds": { "width": "A001", "length": "A002", "height": "A003" },
+    "floorPolygon": [{ "x": 0, "z": 0 }, { "x": 3, "z": 0 }, { "x": 3, "z": 4 }, { "x": 0, "z": 4 }],
+    "floorElevation": 0,
+    "ceilingElevation": 3
+  },
+  "walls": [
+    { "id": "W001", "label": "前牆", "start": { "x": 3, "y": 0, "z": 0 }, "end": { "x": 0, "y": 0, "z": 0 }, "height": 3, "thickness": 0.1 },
+    { "id": "W002", "label": "右牆", "start": { "x": 3, "y": 0, "z": 4 }, "end": { "x": 3, "y": 0, "z": 0 }, "height": 3, "thickness": 0.1 },
+    { "id": "W003", "label": "後牆", "start": { "x": 0, "y": 0, "z": 4 }, "end": { "x": 3, "y": 0, "z": 4 }, "height": 3, "thickness": 0.1 },
+    { "id": "W004", "label": "左牆", "start": { "x": 0, "y": 0, "z": 0 }, "end": { "x": 0, "y": 0, "z": 4 }, "height": 3, "thickness": 0.1 }
+  ],
+  "openings": [
+    { "id": "O001", "type": "door", "label": "門 O001", "hostWallId": "W001", "width": 0.9, "height": 2.1, "left": 1.05, "bottom": 0, "parameterIds": { "width": "A004", "height": "A005", "left": "A006", "bottom": "A007" } },
+    { "id": "O002", "type": "window", "label": "窗 O002", "hostWallId": "W002", "width": 1.2, "height": 1.2, "left": 1.4, "bottom": 0.9, "parameterIds": { "width": "A008", "height": "A009", "left": "A010", "bottom": "A011" } }
+  ],
+  "obstacles": [],
+  "parameters": [
+    { "id": "A001", "objectId": "R001", "property": "width", "label": "房間寬度", "value": 300, "unit": "centimeter" },
+    { "id": "A002", "objectId": "R001", "property": "length", "label": "房間長度", "value": 400, "unit": "centimeter" },
+    { "id": "A003", "objectId": "R001", "property": "height", "label": "房間高度", "value": 300, "unit": "centimeter" },
+    { "id": "A004", "objectId": "O001", "property": "width", "label": "開口寬度", "value": 90, "unit": "centimeter" },
+    { "id": "A005", "objectId": "O001", "property": "height", "label": "開口高度", "value": 210, "unit": "centimeter" },
+    { "id": "A006", "objectId": "O001", "property": "left", "label": "距牆面左側", "value": 105, "unit": "centimeter" },
+    { "id": "A007", "objectId": "O001", "property": "bottom", "label": "距地板高度", "value": 0, "unit": "centimeter" },
+    { "id": "A008", "objectId": "O002", "property": "width", "label": "開口寬度", "value": 120, "unit": "centimeter" },
+    { "id": "A009", "objectId": "O002", "property": "height", "label": "開口高度", "value": 120, "unit": "centimeter" },
+    { "id": "A010", "objectId": "O002", "property": "left", "label": "距牆面左側", "value": 140, "unit": "centimeter" },
+    { "id": "A011", "objectId": "O002", "property": "bottom", "label": "距地板高度", "value": 90, "unit": "centimeter" }
+  ],
+  "measurements": [
+    { "id": "M001", "type": "room_width", "value": 3, "unit": "meter", "parameterId": "A001" },
+    { "id": "M002", "type": "room_length", "value": 4, "unit": "meter", "parameterId": "A002" },
+    { "id": "M003", "type": "room_height", "value": 3, "unit": "meter", "parameterId": "A003" }
+  ],
+  "quality": {
+    "status": "reference_parametric_model",
+    "geometryConfidence": 1,
+    "notes": "Editable rectangle-room sample with one door and one window."
+  }
+}

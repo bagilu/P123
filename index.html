@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="P123 空間模型 V0.2.1：瀏覽範例、讀取 P123 JSON、檢視尺寸並匯出 GLB。">
-  <title>P123 空間模型｜V0.2.1 Viewer</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="P123 V0.3.0 參數式室內空間建模器：以公分參數建立矩形房間、牆面與門窗開口。">
+  <title>P123 參數式空間建模｜V0.3.0</title>
+  <link rel="stylesheet" href="styles.css?v=0.3.0">
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/renderers/CSS2DRenderer.js"></script>
@@ -16,31 +16,59 @@
     <header class="topbar">
       <div class="brand-block">
         <div class="mark" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div>
-          <h1>P123 空間模型</h1>
-          <p>V0.2.1 JSON Viewer</p>
-        </div>
+        <div><h1>P123 參數式空間建模</h1><p>PARAMETRIC ROOM BUILDER · V0.3.0</p></div>
       </div>
       <div class="file-actions">
+        <button id="newRoomButton" class="button button-primary" type="button">＋ 新建矩形房間</button>
         <label class="sample-picker" for="sampleSelect">
           <span>範例檔案</span>
           <select id="sampleSelect" aria-label="選擇範例檔案">
+            <option value="" selected>選擇範例…</option>
+            <option value="parametric">參數式房間｜含門與窗</option>
             <option value="empty">空房間｜3 × 6 × 3 m</option>
             <option value="obstacle">引導式房間｜含大型桌面</option>
             <option value="twoRooms">雙房間｜各 3 × 4 × 3 m</option>
           </select>
         </label>
         <input id="fileInput" type="file" accept="application/json,.json" hidden>
-        <button id="openButton" class="button button-primary" type="button">開啟 JSON</button>
+        <button id="openButton" class="button" type="button">開啟 JSON</button>
         <button id="exportButton" class="button" type="button">匯出 GLB</button>
       </div>
     </header>
 
-    <section class="workspace">
-      <div class="viewer-card">
-        <div id="viewport" class="viewport" aria-label="可旋轉的三維空間模型">
+    <section class="workspace builder-workspace">
+      <aside class="builder-panel panel">
+        <div class="panel-heading"><span class="eyebrow">STRUCTURE</span><h2>空間構件</h2><p>選取牆面後加入門、窗或一般開口。</p></div>
+        <section class="builder-section">
+          <div class="section-title"><h3>地板模板</h3><span class="template-badge">矩形</span></div>
+          <div class="room-node"><span class="node-icon">▣</span><div><strong>R001</strong><small>矩形房間</small></div></div>
+        </section>
+        <section class="builder-section">
+          <div class="section-title"><h3>牆面</h3><span id="selectedWallBadge" class="unit-badge">尚未選取</span></div>
+          <p class="section-hint">「左側」以站在室內面向該牆時為準。</p>
+          <div id="wallList" class="component-list"></div>
+        </section>
+        <section class="builder-section opening-tools">
+          <h3>新增矩形開口</h3>
+          <label class="field-label" for="openingType">開口類型</label>
+          <select id="openingType">
+            <option value="door">門</option>
+            <option value="window">窗</option>
+            <option value="opening">一般開口</option>
+          </select>
+          <button id="addOpeningButton" class="button button-wide" type="button" disabled>＋ 加到選取的牆面</button>
+          <p id="builderModeNote" class="section-hint">請先選取牆面。</p>
+        </section>
+        <section class="builder-section">
+          <div class="section-title"><h3>門窗／開口</h3><span id="openingListCount">0</span></div>
+          <div id="openingList" class="component-list empty-list">尚無開口</div>
+        </section>
+      </aside>
+
+      <section class="viewer-card panel">
+        <div id="viewport" class="viewport" aria-label="可旋轉並可選取牆面的三維空間模型">
           <div class="viewport-topline">
-            <div class="status-chip"><span class="status-dot"></span><span id="modelStatus">基準模型</span></div>
+            <div class="status-chip"><span class="status-dot"></span><span id="modelStatus">建模模式</span></div>
             <div class="view-switch" role="group" aria-label="切換觀看角度">
               <button class="view-button active" data-view="perspective" type="button">3D</button>
               <button class="view-button" data-view="top" type="button">俯視</button>
@@ -48,106 +76,65 @@
               <button class="view-button" data-view="side" type="button">側面</button>
             </div>
           </div>
-
+          <div id="selectionTip" class="selection-tip">點選牆面，即可加入門窗</div>
           <div class="viewer-help">拖曳旋轉 · 滾輪或雙指縮放 · 右鍵或雙指平移</div>
+          <div id="loading" class="loading-panel"><div class="spinner"></div><p>正在載入 3D 引擎…</p></div>
+        </div>
+        <div class="viewer-toolbar">
+          <label class="switch-row"><input id="dimensionToggle" type="checkbox" checked><span class="switch-ui"></span><span>尺寸標示</span></label>
+          <label class="switch-row"><input id="gridToggle" type="checkbox" checked><span class="switch-ui"></span><span>地面格線</span></label>
+          <label class="switch-row"><input id="ceilingToggle" type="checkbox"><span class="switch-ui"></span><span>顯示天花板</span></label>
+          <button id="resetButton" class="text-button" type="button">重設視角</button>
+        </div>
+      </section>
 
-          <div id="loading" class="loading-panel">
-            <div class="spinner" aria-hidden="true"></div>
-            <p>正在載入 3D 引擎…</p>
+      <aside class="inspector panel">
+        <div class="inspector-heading"><span class="eyebrow">PARAMETERS</span><h2 id="spaceName">P123 參數式矩形房間</h2><p id="schemaVersion">P123-SPACE-0.2.0</p></div>
+        <div id="validationBanner" class="validation-banner" role="alert" hidden></div>
+        <section class="parameter-section">
+          <div class="section-title"><h3>房間參數</h3><span class="unit-badge">cm</span></div>
+          <div id="roomParameterTable" class="parameter-table"></div>
+        </section>
+        <section id="openingParameterSection" class="parameter-section" hidden>
+          <div class="section-title"><h3 id="openingParameterTitle">開口參數</h3><button id="deleteOpeningButton" class="danger-text-button" type="button">刪除</button></div>
+          <div id="openingParameterTable" class="parameter-table"></div>
+        </section>
+        <section class="summary-section">
+          <div class="metric-grid">
+            <article class="metric"><span>寬度</span><strong id="widthValue">3.00</strong><small>m</small></article>
+            <article class="metric"><span>長度</span><strong id="lengthValue">4.00</strong><small>m</small></article>
+            <article class="metric"><span>高度</span><strong id="heightValue">3.00</strong><small>m</small></article>
+            <article class="metric"><span>地板面積</span><strong id="areaValue">12.00</strong><small>m²</small></article>
           </div>
-        </div>
-
-        <div class="viewer-toolbar" aria-label="模型顯示設定">
-          <label class="switch-row">
-            <input id="dimensionToggle" type="checkbox" checked>
-            <span class="switch-ui" aria-hidden="true"></span>
-            <span>尺寸標示</span>
-          </label>
-          <label class="switch-row">
-            <input id="gridToggle" type="checkbox" checked>
-            <span class="switch-ui" aria-hidden="true"></span>
-            <span>地面格線</span>
-          </label>
-          <label class="switch-row">
-            <input id="ceilingToggle" type="checkbox">
-            <span class="switch-ui" aria-hidden="true"></span>
-            <span>顯示天花板</span>
-          </label>
-          <button id="resetButton" class="text-button" type="button">重新載入目前範例</button>
-        </div>
-      </div>
-
-      <aside class="inspector">
-        <div class="inspector-heading">
-          <span class="eyebrow">CURRENT SPACE</span>
-          <h2 id="spaceName">P123 Empty Room 3x6x3m</h2>
-          <p id="schemaVersion">P123-SPACE-0.1.0</p>
-        </div>
-
-        <div class="metric-grid">
-          <article class="metric">
-            <span>寬度</span>
-            <strong id="widthValue">3.00</strong>
-            <small>m</small>
-          </article>
-          <article class="metric">
-            <span>長度</span>
-            <strong id="lengthValue">6.00</strong>
-            <small>m</small>
-          </article>
-          <article class="metric">
-            <span>高度</span>
-            <strong id="heightValue">3.00</strong>
-            <small>m</small>
-          </article>
-          <article class="metric">
-            <span>地板面積</span>
-            <strong id="areaValue">18.00</strong>
-            <small>m²</small>
-          </article>
-        </div>
-
-        <div class="section-block">
-          <div class="section-title"><h3>模型內容</h3><span id="unitBadge" class="unit-badge">meter</span></div>
-          <dl class="detail-list">
-            <div><dt>牆面</dt><dd id="wallCount">4</dd></div>
-            <div><dt>門窗開口</dt><dd id="openingCount">0</dd></div>
-            <div><dt>大型障礙物</dt><dd id="obstacleCount">0</dd></div>
-            <div><dt>座標原點</dt><dd id="originValue">floor_corner_A</dd></div>
-          </dl>
-        </div>
-
-        <div class="section-block note-block">
-          <h3>資料狀態</h3>
-          <p id="qualityNote">人工定義的空房間，供 P123 Viewer 測試。</p>
-        </div>
-
-        <button id="jsonButton" class="button button-wide" type="button">查看目前 JSON</button>
+          <div class="section-block">
+            <div class="section-title"><h3>模型內容</h3><span id="unitBadge" class="unit-badge">meter</span></div>
+            <dl class="detail-list">
+              <div><dt>牆面</dt><dd id="wallCount">4</dd></div>
+              <div><dt>門窗開口</dt><dd id="openingCount">0</dd></div>
+              <div><dt>大型障礙物</dt><dd id="obstacleCount">0</dd></div>
+              <div><dt>座標原點</dt><dd id="originValue">floor_corner_A</dd></div>
+            </dl>
+          </div>
+          <div class="section-block note-block"><h3>資料狀態</h3><p id="qualityNote">以公分參數建立的矩形室內空間。</p></div>
+          <button id="jsonButton" class="button button-wide" type="button">查看／下載目前 JSON</button>
+        </section>
       </aside>
     </section>
 
     <footer class="site-footer">
-      <span>慈濟大學 經營管理學系</span>
-      <span aria-hidden="true">｜</span>
+      <span>慈濟大學</span><span>｜</span><span>經營管理學系</span><span>｜</span>
       <a href="https://tcubmdsbilab.github.io/P101/" target="_blank" rel="noopener noreferrer">好玩實驗室</a>
-      <span>作品</span>
+      <span>· Web Version V0.3.0 · SBI-P-SDS v3.6</span>
     </footer>
   </main>
 
   <dialog id="jsonDialog" class="json-dialog">
-    <div class="dialog-head">
-      <div><span class="eyebrow">SOURCE DATA</span><h2>目前 JSON</h2></div>
-      <button id="closeDialog" class="icon-button" type="button" aria-label="關閉">×</button>
-    </div>
+    <div class="dialog-head"><div><span class="eyebrow">SOURCE DATA</span><h2>目前 JSON</h2></div><button id="closeDialog" class="icon-button" type="button">×</button></div>
     <pre id="jsonContent"></pre>
-    <div class="dialog-actions">
-      <button id="downloadJsonButton" class="button" type="button">下載 JSON</button>
-      <button id="closeDialogBottom" class="button button-primary" type="button">完成</button>
-    </div>
+    <div class="dialog-actions"><button id="downloadJsonButton" class="button" type="button">下載 JSON</button><button id="closeDialogBottom" class="button button-primary" type="button">完成</button></div>
   </dialog>
-
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <script src="sample-models.js"></script>
-  <script src="app.js"></script>
+  <script src="sample-models.js?v=0.3.0"></script>
+  <script src="app.js?v=0.3.0"></script>
 </body>
 </html>
